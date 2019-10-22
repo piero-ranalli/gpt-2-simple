@@ -544,14 +544,15 @@ def get_tarfile_name(checkpoint_folder):
     return tarfile_name
 
 
-def copy_checkpoint_to_gdrive(run_name='run1', copy_folder=False):
+def copy_checkpoint_to_gdrive(run_name='run1', copy_folder=False,
+                              drive_folder="/content/drive/My Drive/"):
     """Copies the checkpoint folder to a mounted Google Drive."""
     is_mounted()
 
     checkpoint_folder = os.path.join('checkpoint', run_name)
 
     if copy_folder:
-        shutil.copytree(checkpoint_folder, "/content/drive/My Drive/" + checkpoint_folder)
+        shutil.copytree(checkpoint_folder, os.path.join(drive_folder, checkpoint_folder))
     else:
         file_path = get_tarfile_name(checkpoint_folder)
 
@@ -559,38 +560,41 @@ def copy_checkpoint_to_gdrive(run_name='run1', copy_folder=False):
         with tarfile.open(file_path, 'w') as tar:
             tar.add(checkpoint_folder)
 
-        shutil.copyfile(file_path, "/content/drive/My Drive/" + file_path)
+        shutil.copyfile(file_path, os.path.join(drive_folder, file_path))
 
 
-def copy_checkpoint_from_gdrive(run_name='run1', copy_folder=False):
+def copy_checkpoint_from_gdrive(run_name='run1', copy_folder=False,
+                                drive_folder="/content/drive/My Drive/"):
     """Copies the checkpoint folder from a mounted Google Drive."""
     is_mounted()
 
     checkpoint_folder = os.path.join('checkpoint', run_name)
 
     if copy_folder:
-        shutil.copytree("/content/drive/My Drive/" + checkpoint_folder, checkpoint_folder)
+        shutil.copytree(os.path.join(drive_folder, checkpoint_folder), checkpoint_folder)
     else:
         file_path = get_tarfile_name(checkpoint_folder)
 
-        shutil.copyfile("/content/drive/My Drive/" + file_path, file_path)
+        shutil.copyfile(os.path.join(drive_folder, file_path), file_path)
 
         with tarfile.open(file_path, 'r') as tar:
             tar.extractall()
 
 
-def copy_file_to_gdrive(file_path):
+def copy_file_to_gdrive(file_path,
+                        drive_folder="/content/drive/My Drive/"):
     """Copies a file to a mounted Google Drive."""
     is_mounted()
 
-    shutil.copyfile(file_path, "/content/drive/My Drive/" + file_path)
+    shutil.copyfile(file_path, os.path.join(drive_folder, file_path))
 
 
-def copy_file_from_gdrive(file_path):
+def copy_file_from_gdrive(file_path,
+                          drive_folder="/content/drive/My Drive/"):
     """Copies a file from a mounted Google Drive."""
     is_mounted()
 
-    shutil.copyfile("/content/drive/My Drive/" + file_path, file_path)
+    shutil.copyfile(os.path.join(drive_folder, file_path), file_path)
 
 
 def is_gpt2_downloaded(model_dir='models', model_name='124M'):

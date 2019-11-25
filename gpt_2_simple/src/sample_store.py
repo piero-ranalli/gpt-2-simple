@@ -25,7 +25,7 @@ class SampleStore:
     def add_sample(self,text,model_name,iters,prefix=None):
         print("sstore add sample")
 
-        self.csv = pd.append(self.csv,
+        self.csv = self.csv.append(
                              pd.DataFrame({ 'model':[model_name],
                                             'iters':[iters],
                                             'prefix':[prefix],

@@ -2,7 +2,7 @@ import pandas as pd
 
 class SampleStore:
 
-    def __init__(self, storefile):
+    def __init__(self, storefile='samplestore.csv'):
 
         self.storefile = storefile
 
@@ -27,6 +27,7 @@ class SampleStore:
                                             'prefix':[prefix],
                                             'text':[text],
                              }))
+        self.save()
 
     def save(self):
         self.csv.to_csv(self.storefile)

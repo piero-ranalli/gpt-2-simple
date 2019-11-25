@@ -27,6 +27,8 @@ from gpt_2_simple.src.accumulate import AccumulatingOptimizer
 from gpt_2_simple.src.sm3 import SM3Optimizer
 from gpt_2_simple.src.adafactor import AdafactorOptimizer
 
+from gpt_2_simple.src.sample_store import SampleStore
+
 
 def download_file_with_progress(url_base, sub_dir, model_name, file_name):
     """General utility for incrementally downloading files from the internet
@@ -141,7 +143,8 @@ def finetune(sess,
              only_train_transformer_layers=False,
              optimizer='adam',
              overwrite=False,
-             mixed_precision=False):
+             mixed_precision=False,
+             storefile='store.csv'):
     """Finetunes the model on the given dataset.
 
     Adapted from https://github.com/nshepperd/gpt-2/blob/finetuning/train.py.
@@ -308,16 +311,25 @@ def finetune(sess,
         with open(counter_path, 'w') as fp:
             fp.write(str(counter-1) + '\n')
 
-    def generate_samples():
+    def generate_samples(storefile=storefile):
         context_tokens = data_sampler.sample(1)
         all_text = []
         index = 0
+
+        sstore = SampleStore(storefile)
+
         while index < sample_num:
             out = sess.run(
                 tf_sample,
                 feed_dict={context: batch_size * [context_tokens]})
             for i in range(min(sample_num - index, batch_size)):
                 text = enc.decode(out[i])
+                sstore.add_sample(text,                    # save to external storage
+                                  model_name=model_name,
+                                  iters=counter,
+                                  prefix=None,
+                )
+                
                 text = '======== SAMPLE {} ========\n{}\n'.format(
                     index + 1, text)
                 all_text.append(text)
@@ -352,7 +364,7 @@ def finetune(sess,
             if (counter - 1) % save_every == 0 and counter > 1:
                 save()
             if (counter - 1) % sample_every == 0 and counter > 1:
-                generate_samples()
+                generate_samples(storefile)
 
             if accumulate_gradients > 1:
                 sess.run(opt_reset)

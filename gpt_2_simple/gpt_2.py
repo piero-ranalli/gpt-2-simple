@@ -324,6 +324,7 @@ def finetune(sess,
                 feed_dict={context: batch_size * [context_tokens]})
             for i in range(min(sample_num - index, batch_size)):
                 text = enc.decode(out[i])
+                print("calling sstore.add_sample")
                 sstore.add_sample(text,                    # save to external storage
                                   model_name=model_name,
                                   iters=counter,

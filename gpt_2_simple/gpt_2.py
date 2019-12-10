@@ -310,6 +310,8 @@ def finetune(sess,
             global_step=counter-1)
         with open(counter_path, 'w') as fp:
             fp.write(str(counter-1) + '\n')
+            
+        copy_checkpoint_to_gdrive(run_name=run_name+'_autosave')
 
     def generate_samples(storefile=storefile):
         context_tokens = data_sampler.sample(1)

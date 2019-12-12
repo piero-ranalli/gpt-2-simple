@@ -13,5 +13,8 @@ class SampleStore:
 
         with open(self.storefile, 'a+') as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow([model_name,iters,prefix,text])
+
+            for t in text.splitlines():
+                writer.writerow([model_name,iters,prefix,t])
+
         

@@ -144,7 +144,8 @@ def finetune(sess,
              optimizer='adam',
              overwrite=False,
              mixed_precision=False,
-             storefile='store.csv'):
+             storefile='store.csv'
+             autosave_to_gdrive=False):
     """Finetunes the model on the given dataset.
 
     Adapted from https://github.com/nshepperd/gpt-2/blob/finetuning/train.py.
@@ -298,7 +299,7 @@ def finetune(sess,
             counter = int(fp.read()) + 1
     counter_base = counter
 
-    def save():
+    def save(autosave_to_gdrive=False):
         maketree(checkpoint_path)
         print(
             'Saving',
@@ -310,8 +311,9 @@ def finetune(sess,
             global_step=counter-1)
         with open(counter_path, 'w') as fp:
             fp.write(str(counter-1) + '\n')
-            
-        copy_checkpoint_to_gdrive(run_name=run_name+'_autosave')
+
+        if autosave_to_gdrive:
+            copy_checkpoint_to_gdrive(run_name=run_name+'_autosave')
 
     def generate_samples(storefile=storefile):
         context_tokens = data_sampler.sample(1)
@@ -351,7 +353,7 @@ def finetune(sess,
         for file in files:
             if file.startswith('model') or file.startswith('events'):
                 os.remove(os.path.join(checkpoint_path, file))
-        save()
+        save(autosave_to_gdrive)
 
     avg_loss = (0.0, 0.0)
     start_time = time.time()
@@ -362,10 +364,10 @@ def finetune(sess,
     try:
         while True:
             if steps > 0 and counter == (counter_base + steps):
-                save()
+                save(autosave_to_gdrive)
                 return
             if (counter - 1) % save_every == 0 and counter > 1:
-                save()
+                save(autosave_to_gdrive)
             if (counter - 1) % sample_every == 0 and counter > 1:
                 generate_samples(storefile)
 
@@ -397,7 +399,7 @@ def finetune(sess,
             counter += 1
     except KeyboardInterrupt:
         print('interrupted')
-        save()
+        save(autosave_to_gdrive)
 
 
 def load_gpt2(sess,

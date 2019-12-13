@@ -144,7 +144,7 @@ def finetune(sess,
              optimizer='adam',
              overwrite=False,
              mixed_precision=False,
-             storefile='store.csv'
+             storefile='store.csv',
              autosave_to_gdrive=False):
     """Finetunes the model on the given dataset.
 
